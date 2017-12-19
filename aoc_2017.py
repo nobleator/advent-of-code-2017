@@ -722,7 +722,39 @@ def d18(data, part=1):
         return count, indx0, indx1"""
 
 
+def d19(data):
+     steps = 0
+     grid = []
+     for row in data:
+          grid.append([c for c in row[:-1]])
+     res = []
+     coord = [grid[0].index('|'), 0]
+     move = (0, 1)
+     done = False
+     while not done:
+          next_coord = [sum(x) for x in zip(coord, move)]
+          if grid[next_coord[1]][next_coord[0]].isalpha():
+               res.append(grid[next_coord[1]][next_coord[0]])
+               coord = [sum(x) for x in zip(coord, move)]
+          if grid[next_coord[1]][next_coord[0]] == '+':
+               if move == (0, 1) or move == (0, -1):
+                    if grid[next_coord[1]][next_coord[0] - 1] == ' ':
+                         move = (1, 0)
+                    else:
+                         move = (-1, 0)
+               else:
+                    if grid[next_coord[1] - 1][next_coord[0]] == ' ':
+                         move = (0, 1)
+                    else:
+                         move = (0, -1)
+          coord = next_coord
+          steps += 1
+          if grid[next_coord[1]][next_coord[0]] == ' ':
+               done = True
+     return ''.join(res), steps
+
+
 if __name__ == '__main__':
-    with open('d18.txt', 'r') as fid:
+    with open('d19.txt', 'r') as fid:
         data = ''.join(fid.readlines())
-    print(d18(data, part=2))
+    print(d19(data))
