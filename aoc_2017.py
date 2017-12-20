@@ -754,7 +754,52 @@ def d19(data):
     return ''.join(res), steps
 
 
+def d20(data):
+    # 345 too high
+    # 197 too high
+    particles = {}
+    ctr = 0
+    for row in data[:-1].split('\n'):
+        p, v, a = row.split(' ')
+        pxyz = [int(e) for e in p[p.find('<') + 1:p.find('>')].split(',')]
+        vxyz = [int(e) for e in v[v.find('<') + 1:v.find('>')].split(',')]
+        axyz = [int(e) for e in a[a.find('<') + 1:a.find('>')].split(',')]
+        particles[ctr] = {'p': pxyz, 'v': vxyz, 'a': axyz}
+        ctr += 1
+
+    def update_position(num):
+        particles[num]['v'] = [sum(e) for e in zip(particles[num]['v'],
+                                                   particles[num]['a'])]
+        particles[num]['p'] = [sum(e) for e in zip(particles[num]['p'],
+                                                   particles[num]['v'])]
+
+    def get_dist(num):
+        return sum([abs(e) for e in particles[num]['p']])
+
+    for _ in range(0, 500):
+        dists = []
+        destroyed = []
+        for particle in particles:
+            update_position(particle)
+            dists.append(get_dist(particle))
+
+        positions = {}
+        for particle in particles:
+            if particle in destroyed:
+                continue
+            position = tuple(particles[particle]['p'])
+            if position not in positions:
+                positions[position] = [particle]
+            else:
+                positions[position].append(particle)
+        for pos in positions:
+            if len(positions[pos]) > 1:
+                destroyed += positions[pos]
+
+    return dists.index(min(dists)), len(particles) - len(destroyed)
+
+
 if __name__ == '__main__':
-    with open('d19.txt', 'r') as fid:
+    with open('d20.txt', 'r') as fid:
         data = ''.join(fid.readlines())
-    print(d19(data))
+    print(d20(data))
