@@ -795,11 +795,11 @@ def d20(data):
         for pos in positions:
             if len(positions[pos]) > 1:
                 destroyed += positions[pos]
-
+    print(destroyed)
     return dists.index(min(dists)), len(particles) - len(destroyed)
 
 
 if __name__ == '__main__':
-    with open('d20.txt', 'r') as fid:
+    with open('d20_test2.txt', 'r') as fid:
         data = ''.join(fid.readlines())
     print(d20(data))
