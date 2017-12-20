@@ -776,9 +776,9 @@ def d20(data):
     def get_dist(num):
         return sum([abs(e) for e in particles[num]['p']])
 
+    destroyed = []
     for _ in range(0, 500):
         dists = []
-        destroyed = []
         for particle in particles:
             update_position(particle)
             dists.append(get_dist(particle))
