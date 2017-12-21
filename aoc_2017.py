@@ -795,11 +795,31 @@ def d20(data):
         for pos in positions:
             if len(positions[pos]) > 1:
                 destroyed += positions[pos]
-    print(destroyed)
     return dists.index(min(dists)), len(particles) - len(destroyed)
 
 
+def d21(data):
+    # Pre-flip and rotate, convert to tuple, add to rules
+    rules = {}
+    for row in data.split('\n')[:-1]:
+        src, trg = [e.split('/') for e in row.split(' => ')]
+        rules[tuple(src)] = trg
+        # TODO: Flip and rotate src
+
+    grid = ['.#.', '..#', '###']
+    for _ in range(0, 5):
+        if len(grid) % 2 == 0:
+            for chunk in range(0, len(grid), 2):
+                if tuple(grid[chunk:chunk + 2]) in rules:
+                    grid[chunk:chunk + 2] = rules[tuple(grid[chunk:chunk + 2])]
+        else:
+            for chunk in range(0, len(grid), 3):
+                if tuple(grid[chunk:chunk + 3]) in rules:
+                    grid[chunk:chunk + 3] = rules[tuple(grid[chunk:chunk + 3])]
+    return sum([sum([c == '#' for c in r]) for r in grid])
+
+
 if __name__ == '__main__':
-    with open('d20_test2.txt', 'r') as fid:
+    with open('d21.txt', 'r') as fid:
         data = ''.join(fid.readlines())
-    print(d20(data))
+    print(d21(data))
