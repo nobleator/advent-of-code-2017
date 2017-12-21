@@ -799,24 +799,58 @@ def d20(data):
 
 
 def d21(data):
-    # Pre-flip and rotate, convert to tuple, add to rules
+    import numpy as np
     rules = {}
     for row in data.split('\n')[:-1]:
         src, trg = [e.split('/') for e in row.split(' => ')]
-        rules[tuple(src)] = trg
-        # TODO: Flip and rotate src
-
-    grid = ['.#.', '..#', '###']
-    for _ in range(0, 5):
+        src = np.array([list(r) for r in src])
+        trg = np.array([list(r) for r in trg])
+        # Original matrix
+        rules[src.tobytes()] = trg
+        # Rotated matrices
+        rules[np.rot90(src, k=1).tobytes()] = trg
+        rules[np.rot90(src, k=2).tobytes()] = trg
+        rules[np.rot90(src, k=3).tobytes()] = trg
+        # Flipped (and rotated) matrices
+        rules[np.flip(src, axis=1).tobytes()] = trg
+        # Rotated matrices
+        rules[np.rot90(np.flip(src, axis=1), k=1).tobytes()] = trg
+        rules[np.rot90(np.flip(src, axis=1), k=2).tobytes()] = trg
+        rules[np.rot90(np.flip(src, axis=1), k=3).tobytes()] = trg
+    
+    # Starting grid
+    grid = np.array([['.','#','.'], ['.','.','#'], ['#','#','#']])
+    for _ in range(0, 18):
         if len(grid) % 2 == 0:
-            for chunk in range(0, len(grid), 2):
-                if tuple(grid[chunk:chunk + 2]) in rules:
-                    grid[chunk:chunk + 2] = rules[tuple(grid[chunk:chunk + 2])]
+            tgrid = False
+            for row in range(0, len(grid), 2):
+                rgrid = np.array([[]])
+                for col in range(0, len(grid), 2):
+                    subset = grid[row:row + 2, col:col + 2]
+                    if col == 0:
+                        rgrid = rules[subset.tobytes()]
+                    else:
+                        rgrid = np.concatenate((rgrid, rules[subset.tobytes()]), axis=1)
+                if row == 0:
+                    tgrid = rgrid
+                else:
+                    tgrid = np.concatenate((tgrid, rgrid), axis=0)
         else:
-            for chunk in range(0, len(grid), 3):
-                if tuple(grid[chunk:chunk + 3]) in rules:
-                    grid[chunk:chunk + 3] = rules[tuple(grid[chunk:chunk + 3])]
-    return sum([sum([c == '#' for c in r]) for r in grid])
+            tgrid = False
+            for row in range(0, len(grid), 3):
+                rgrid = np.array([[]])
+                for col in range(0, len(grid), 3):
+                    subset = grid[row:row + 3, col:col + 3]
+                    if col == 0:
+                        rgrid = rules[subset.tobytes()]
+                    else:
+                        rgrid = np.concatenate((rgrid, rules[subset.tobytes()]), axis=1)
+                if row == 0:
+                    tgrid = rgrid
+                else:
+                    tgrid = np.concatenate((tgrid, rgrid), axis=0)
+        grid = tgrid
+    return (grid == '#').sum()
 
 
 if __name__ == '__main__':
