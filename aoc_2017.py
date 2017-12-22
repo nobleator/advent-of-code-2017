@@ -622,7 +622,7 @@ def d18(data, part=1):
                 i = ind[pr]
                 d = ds[pr]
 
-        print tot
+        return tot
         # My code (doesn't work...)
         """reg0 = {chr(n + 96): 0 for n in range(1, 27)}
         reg1 = {chr(n + 96): 0 for n in range(1, 27)}
@@ -755,8 +755,6 @@ def d19(data):
 
 
 def d20(data):
-    # 345 too high
-    # 197 too high
     particles = {}
     ctr = 0
     for row in data[:-1].split('\n'):
@@ -799,6 +797,7 @@ def d20(data):
 
 
 def d21(data):
+    # Requires Python3
     import numpy as np
     rules = {}
     for row in data.split('\n')[:-1]:
@@ -817,9 +816,9 @@ def d21(data):
         rules[np.rot90(np.flip(src, axis=1), k=1).tobytes()] = trg
         rules[np.rot90(np.flip(src, axis=1), k=2).tobytes()] = trg
         rules[np.rot90(np.flip(src, axis=1), k=3).tobytes()] = trg
-    
+
     # Starting grid
-    grid = np.array([['.','#','.'], ['.','.','#'], ['#','#','#']])
+    grid = np.array([['.', '#', '.'], ['.', '.', '#'], ['#', '#', '#']])
     for _ in range(0, 18):
         if len(grid) % 2 == 0:
             tgrid = False
@@ -830,11 +829,14 @@ def d21(data):
                     if col == 0:
                         rgrid = rules[subset.tobytes()]
                     else:
-                        rgrid = np.concatenate((rgrid, rules[subset.tobytes()]), axis=1)
+                        rgrid = np.concatenate((rgrid,
+                                                rules[subset.tobytes()]),
+                                               axis=1)
                 if row == 0:
                     tgrid = rgrid
                 else:
-                    tgrid = np.concatenate((tgrid, rgrid), axis=0)
+                    tgrid = np.concatenate((tgrid, rgrid),
+                                           axis=0)
         else:
             tgrid = False
             for row in range(0, len(grid), 3):
@@ -844,7 +846,9 @@ def d21(data):
                     if col == 0:
                         rgrid = rules[subset.tobytes()]
                     else:
-                        rgrid = np.concatenate((rgrid, rules[subset.tobytes()]), axis=1)
+                        rgrid = np.concatenate((rgrid,
+                                                rules[subset.tobytes()]),
+                                               axis=1)
                 if row == 0:
                     tgrid = rgrid
                 else:
@@ -853,7 +857,93 @@ def d21(data):
     return (grid == '#').sum()
 
 
+def d22(data, part=1):
+    # Cartesian coordinate system (top left = -x, y, bottom right = x, -y)
+    move = (0, 1)
+    coord = [0, 0]
+    grid = {}
+    y = len(data.split('\n')[:-1]) / 2
+    for row in data.split('\n')[:-1]:
+        x = - (len(row) / 2)
+        for char in row:
+            grid[(x, y)] = char
+            x += 1
+        y -= 1
+    count = 0
+    if part == 1:
+        for _ in range(0, 10000):
+            if tuple(coord) not in grid:
+                grid[tuple(coord)] = '.'
+            if grid[tuple(coord)] == '#':
+                grid[tuple(coord)] = '.'
+                # Turn right
+                if move == (0, 1):
+                    move = (1, 0)
+                elif move == (1, 0):
+                    move = (0, -1)
+                elif move == (0, -1):
+                    move = (-1, 0)
+                else:
+                    move = (0, 1)
+            else:
+                count += 1
+                grid[tuple(coord)] = '#'
+                # Turn left
+                if move == (0, 1):
+                    move = (-1, 0)
+                elif move == (-1, 0):
+                    move = (0, -1)
+                elif move == (0, -1):
+                    move = (1, 0)
+                else:
+                    move = (0, 1)
+            coord = [sum(e) for e in zip(coord, move)]
+    else:
+        for _ in range(0, 10000000):
+            if tuple(coord) not in grid:
+                grid[tuple(coord)] = '.'
+            if grid[tuple(coord)] == '#':
+                grid[tuple(coord)] = 'F'
+                # Turn right
+                if move == (0, 1):
+                    move = (1, 0)
+                elif move == (1, 0):
+                    move = (0, -1)
+                elif move == (0, -1):
+                    move = (-1, 0)
+                else:
+                    move = (0, 1)
+            elif grid[tuple(coord)] == 'F':
+                grid[tuple(coord)] = '.'
+                # Reverse direction
+                if move == (0, 1):
+                    move = (0, -1)
+                elif move == (-1, 0):
+                    move = (1, 0)
+                elif move == (0, -1):
+                    move = (0, 1)
+                else:
+                    move = (-1, 0)
+            elif grid[tuple(coord)] == '.':
+                grid[tuple(coord)] = 'W'
+                # Turn left
+                if move == (0, 1):
+                    move = (-1, 0)
+                elif move == (-1, 0):
+                    move = (0, -1)
+                elif move == (0, -1):
+                    move = (1, 0)
+                else:
+                    move = (0, 1)
+            elif grid[tuple(coord)] == 'W':
+                count += 1
+                grid[tuple(coord)] = '#'
+                # No turn
+            coord = [sum(e) for e in zip(coord, move)]
+    return count
+
+
 if __name__ == '__main__':
-    with open('d21.txt', 'r') as fid:
+    with open('d22.txt', 'r') as fid:
         data = ''.join(fid.readlines())
-    print(d21(data))
+    print(d22(data, part=2))
