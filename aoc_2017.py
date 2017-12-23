@@ -943,7 +943,57 @@ def d22(data, part=1):
     return count
 
 
+def d23(data):
+    commands = []
+    for row in data[:-1].split('\n'):
+        if len(row.split()) > 2:
+            comm, target, val = row.split()
+        else:
+            comm, target = row.split()
+            val = ''
+        commands.append((comm, target, val))
+    registers = {chr(n + 96): 0 for n in range(1, 9)}
+    indx = 0
+    count = 0
+    while 0 <= indx < len(commands):
+        if indx == 14 or indx == 19:
+            print(indx)
+            print(registers)
+        if count > 4:
+            break
+        command = commands[indx]
+        comm = command[0]
+        target = command[1]
+        try:
+            val = int(command[2])
+        except ValueError:
+            val = command[2]
+        if comm == 'set':
+            if val in registers:
+                registers[target] = registers[val]
+            else:
+                registers[target] = val
+        if comm == 'sub':
+            if val in registers:
+                registers[target] -= registers[val]
+            else:
+                registers[target] -= val
+        if comm == 'mul':
+            count += 1
+            if val in registers:
+                registers[target] *= registers[val]
+            else:
+                registers[target] *= val
+        if (comm == 'jnz' and
+           ((target in registers and registers[target] != 0) or
+           (type(target) is int and target != 0))):
+            indx += val
+        else:
+            indx += 1
+    return count
+
+
 if __name__ == '__main__':
-    with open('d22.txt', 'r') as fid:
+    with open('d23.txt', 'r') as fid:
         data = ''.join(fid.readlines())
-    print(d22(data, part=2))
+    print(d23(data))
