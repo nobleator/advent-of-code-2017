@@ -993,6 +993,188 @@ def d23(data):
     return count
 
 
+"""
+Reference: https://github.com/dp1/AoC17/blob/master/day23.5.txt
+
+Original instructions
+
+set b 67
+set c b
+jnz a 2
+jnz 1 5
+mul b 100
+sub b -100000
+set c b
+sub c -17000
+set f 1
+set d 2
+set e 2
+set g d
+mul g e
+sub g b
+jnz g 2
+set f 0
+sub e -1
+set g e
+sub g b
+jnz g -8
+sub d -1
+set g d
+sub g b
+jnz g -13
+jnz f 2
+sub h -1
+set g b
+sub g c
+jnz g 2
+jnz 1 3
+sub b -17
+jnz 1 -23
+
+# Loops
+
+set b 67
+set c b
+jnz a 2
+jnz 1 5
+mul b 100
+sub b -100000
+set c b
+sub c -17000
+    set f 1
+    set d 2
+        set e 2
+            set g d
+            mul g e
+            sub g b
+            jnz g 2
+            set f 0
+            sub e -1
+            set g e
+            sub g b
+            jnz g -8
+        sub d -1
+        set g d
+        sub g b
+        jnz g -13
+    jnz f 2
+    sub h -1
+    set g b
+    sub g c
+    jnz g 2
+    jnz 1 3
+    sub b -17
+    jnz 1 -23
+
+# Psuedocode
+
+b = 67
+c = b = 67
+if a != 0:
+# jnz 1 5
+    b *= 100
+    b -= -100000
+    c = b
+    c -= -17000
+# loop start
+    f = 1
+    d = 2
+    # loop start
+        e = 2
+        # loop start
+            g = d
+            g *= e
+            g -= b
+            if g == 0:
+                f = 0
+            e -= -1
+            g = e
+            g -= b
+            if g != 0: loop up -8
+        d -= -1
+        g = d
+        g -= b
+        if g != 0: loop up -13
+    if f == 0:
+        h -= -1
+    g = b
+    g -= c
+    if g == 0:
+        break
+    b -= -17
+    loop up -23
+
+# Psuedocode 2
+
+b = 67 * 100 + 100000
+c = b + 17000
+while True:
+    f = 1
+    d = 2
+    while g != 0:
+        e = 2
+        while g != 0:
+            g = d * e - b
+            if g == 0:
+                f = 0
+            e += 1
+            g = e - b
+        d += 1
+        g = d - b
+    if f == 0:
+        h += 1
+    g = b - c
+    if b == c:
+        break
+    b += 17
+
+# Psuedocode 3
+
+b = 106700
+c = 123700
+while b != c:
+    f = 1
+    d = 2
+    while d != b:
+        e = 2
+        while e != b:
+            if d * e == b:
+                f = 0
+            e += 1
+        d += 1
+    if f == 0:
+        h += 1
+    b += 17
+    
+# Psuedocode 4
+
+for b in range(106700, 123701, 17):
+    f = 1
+    for d in range(2, b + 1, 1):
+        for e in range(2, b + 1, 1):
+            if d * e == b:
+                f = 0
+    if f == 0:
+        h += 1
+
+"""
+
+def d23_2():
+    import math
+    def is_prime(n):
+        if n > 2 and n % 2 == 0:
+            return False
+        for i in range(3, int(math.sqrt(n)) + 1, 2):
+            if n % i == 0:
+                return False
+        return True
+    h = 0
+    for b in range(106700, 123701, 17):
+        if not is_prime(b):
+            h += 1
+    return h
+
+
 def d25():
     tape = {0: 0}
     cursor = 0
