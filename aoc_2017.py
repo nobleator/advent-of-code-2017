@@ -993,6 +993,63 @@ def d23(data):
     return count
 
 
+def d25():
+    tape = {0: 0}
+    cursor = 0
+    state = 'A'
+    for _ in range(12586542):
+        if state == 'A':
+            if tape[cursor] == 0:
+                tape[cursor] = 1
+                cursor += 1
+            else:
+                tape[cursor] = 0
+                cursor -= 1
+            state = 'B'
+        elif state == 'B':
+            if tape[cursor] == 0:
+                cursor += 1
+                state = 'C'
+            else:
+                cursor -= 1
+                state = 'B'
+        elif state == 'C':
+            if tape[cursor] == 0:
+                tape[cursor] = 1
+                cursor += 1
+                state = 'D'
+            else:
+                tape[cursor] = 0
+                cursor -= 1
+                state = 'A'
+        elif state == 'D':
+            if tape[cursor] == 0:
+                state = 'E'
+            else:
+                state = 'F'
+            tape[cursor] = 1
+            cursor -= 1
+        elif state == 'E':
+            if tape[cursor] == 0:
+                tape[cursor] = 1
+                state = 'A'
+            else:
+                tape[cursor] = 0
+                state = 'D'
+            cursor -= 1
+        elif state == 'F':
+            if tape[cursor] == 0:
+                tape[cursor] = 1
+                cursor += 1
+                state = 'A'
+            else:
+                cursor -= 1
+                state = 'E'
+        if cursor not in tape:
+            tape[cursor] = 0
+    return sum(tape.values())
+
+
 if __name__ == '__main__':
     with open('d23.txt', 'r') as fid:
         data = ''.join(fid.readlines())
