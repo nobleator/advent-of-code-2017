@@ -944,7 +944,46 @@ def d22(data, part=1):
 
 
 def d23(data):
-    commands = []
+    # Not my code, source:
+    # https://www.reddit.com/r/adventofcode/comments/7lms6p/2017_day_23_solutions/drngit2/
+    import re
+    cmds = [x.split() for x in open('d23.txt', 'r').readlines()]
+    regs = [0 for _ in range(8)]
+
+    def getval(r):
+        if re.match('[\-0-9]', r):
+            return int(r)
+        else:
+            return regs[ord(r) - 97]
+    i1 = 0
+    m = 0
+    while 0 <= i1 < len(cmds):
+        cmd = cmds[i1]
+        c = cmd[0]
+        if c == 'jnz':
+            if getval(cmd[1]) != 0:
+                i1 += getval(cmd[2])
+            else:
+                i1 += 1
+        else:
+            if c == 'set':
+                regs[ord(cmd[1]) - 97] = getval(cmd[2])
+            if c == 'sub':
+                regs[ord(cmd[1]) - 97] -= getval(cmd[2])
+            if c == 'mul':
+                regs[ord(cmd[1]) - 97] *= getval(cmd[2])
+                m += 1
+            i1 += 1
+    print(m)
+    h = 0
+    for x in range(105700, 122700 + 1, 17):
+        for i in range(2, x):
+            if x % i == 0:
+                h += 1
+                break
+    print(h)
+
+    """commands = []
     for row in data[:-1].split('\n'):
         if len(row.split()) > 2:
             comm, target, val = row.split()
@@ -990,7 +1029,42 @@ def d23(data):
             indx += val
         else:
             indx += 1
-    return count
+    return count"""
+
+
+def d24(data):
+    components = []
+    for row in data[:-1].split('\n'):
+        components.append(tuple([int(elem) for elem in row.split('/')]))
+
+    bridges = set()
+
+    def gen_bridge(bridge, components):
+        if (len(bridge) == 1 or
+           bridge[-1][0] == bridge[-2][0] or
+           bridge[-1][0] == bridge[-2][1]):
+            open_port = bridge[-1][1]
+        else:
+            open_port = bridge[-1][0]
+
+        for part in components:
+            if part[0] == open_port or part[1] == open_port:
+                new_bridge = bridge + [part]
+                if tuple(new_bridge) not in bridges:
+                    bridges.add(tuple(new_bridge))
+                indx = components.index(part)
+                new_components = components[:indx] + components[indx + 1:]
+                gen_bridge(new_bridge, new_components)
+
+    gen_bridge(bridge=[(0, 0)], components=components)
+    max_strength = 0
+    max_length = 0
+    for bridge in bridges:
+        strength = sum([e[0] + e[1] for e in list(bridge)])
+        if strength > max_strength and len(bridge) >= max_length:
+            max_strength = strength
+            max_length = len(bridge)
+    return max_strength, max_length
 
 
 """
@@ -1233,6 +1307,6 @@ def d25():
 
 
 if __name__ == '__main__':
-    with open('d23.txt', 'r') as fid:
+    with open('d24.txt', 'r') as fid:
         data = ''.join(fid.readlines())
-    print(d23(data))
+    print(d24(data))
